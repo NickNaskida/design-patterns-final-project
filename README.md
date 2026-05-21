@@ -26,6 +26,8 @@ python scripts/setup_database.py
 | Command | Description |
 |---------|-------------|
 | `python scripts/setup_database.py` | Migrate and seed |
+| `python manage.py migrate` | Apply migrations |
+| `python manage.py makemigrations` | Create migrations after model changes |
 | `python manage.py seed_movies` | Seed only (skips if movies exist) |
 | `python manage.py runserver` | Dev server |
 
@@ -35,6 +37,7 @@ python scripts/setup_database.py
 movieratings/     project settings and urls
 movies/
   models.py
+  migrations/   0001_initial.py (Movie)
   views.py
   patterns/       repository, factory
   services/       movie_service
