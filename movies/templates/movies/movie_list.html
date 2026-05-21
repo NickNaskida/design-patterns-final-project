@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Movies</title>
+</head>
+<body>
+    <h1>Movies</h1>
+
+    {% if movies %}
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>Director</th>
+            <th>Year</th>
+            <th>Genre</th>
+            <th>Rating</th>
+        </tr>
+        {% for movie in movies %}
+        <tr>
+            <td>{{ movie.title }}</td>
+            <td>{{ movie.director }}</td>
+            <td>{{ movie.release_year }}</td>
+            <td>{{ movie.genre }}</td>
+            <td>{{ movie.average_rating }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>no movies yet — run seed_movies</p>
+    {% endif %}
+</body>
+</html>
