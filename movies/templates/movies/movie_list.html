@@ -5,6 +5,18 @@
     <title>Movies</title>
 </head>
 <body>
+    {% if user.is_authenticated %}
+    <p>
+        {{ user.get_full_name|default:user.username }}
+        <form method="post" action="{% url 'logout' %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit">Log out</button>
+        </form>
+    </p>
+    {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> | <a href="{% url 'register' %}">Register</a></p>
+    {% endif %}
+
     <h1>Movies</h1>
 
     {% if movies %}
