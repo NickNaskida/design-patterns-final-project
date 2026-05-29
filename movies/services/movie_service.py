@@ -1,6 +1,6 @@
 from movies.patterns.factory import MovieDataFactory
 from movies.patterns.repository import DjangoMovieRepository
-
+from movies.models import Movie
 
 class MovieService:
     def __init__(self, repo=None):
@@ -8,6 +8,10 @@ class MovieService:
 
     def list_movies(self):
         return self.repo.get_all()
+
+    def add_movie(self, **kwargs):
+        movie = Movie(**kwargs)
+        return self.repo.save(movie)
 
     def seed_sample_data(self):
         if self.repo.count() > 0:
