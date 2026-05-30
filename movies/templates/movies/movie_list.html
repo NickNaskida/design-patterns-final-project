@@ -1,47 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Movies</title>
-</head>
-<body>
-    {% if user.is_authenticated %}
-    <p>
-        {{ user.get_full_name|default:user.username }}
-        <form method="post" action="{% url 'logout' %}" style="display:inline">
-            {% csrf_token %}
-            <button type="submit">Log out</button>
-        </form>
-    </p>
-    {% else %}
-    <p><a href="{% url 'login' %}">Log in</a> | <a href="{% url 'register' %}">Register</a></p>
-    {% endif %}
+{% extends "base.html" %}
 
-    <h1>Movies</h1>
+{% block title %}Movies — Movie Ratings{% endblock %}
 
-    <p><a href="{% url 'add_movie' %}">+ Add New Movie</a></p>
+{% block content %}
+<div class="card">
+    <div class="toolbar">
+        <div>
+            <h1 class="page-title">Movies</h1>
+            <p class="page-lead">Browse and rate films from the catalog.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+    </div>
 
     {% if movies %}
-    <table border="1">
-        <tr>
-            <th>Title</th>
-            <th>Director</th>
-            <th>Year</th>
-            <th>Genre</th>
-            <th>Rating</th>
-        </tr>
-        {% for movie in movies %}
-        <tr>
-            <td>{{ movie.title }}</td>
-            <td>{{ movie.director }}</td>
-            <td>{{ movie.release_year }}</td>
-            <td>{{ movie.genre }}</td>
-            <td>{{ movie.average_rating }}</td>
-        </tr>
-        {% endfor %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Year</th>
+                <th>Genre</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie in movies %}
+            <tr>
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.director }}</td>
+                <td>{{ movie.release_year }}</td>
+                <td>{{ movie.genre }}</td>
+                <td><span class="rating-badge">{{ movie.average_rating }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     {% else %}
-    <p>no movies yet — run seed_movies</p>
+    <p class="empty-state">No movies yet — run <code>python manage.py seed_movies</code></p>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}
