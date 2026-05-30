@@ -217,22 +217,21 @@ a:hover {
   gap: 1rem;
 }
 
-.form-stack p {
-  margin: 0;
+.form-field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.form-stack label {
+.form-field label {
   font-weight: 500;
   font-size: 0.875rem;
   color: #475569;
 }
 
-.form-stack input,
-.form-stack select,
-.form-stack textarea {
+.form-field input,
+.form-field select,
+.form-field textarea {
   padding: 0.5rem 0.625rem;
   font-size: 1rem;
   font-family: inherit;
@@ -241,25 +240,52 @@ a:hover {
   max-width: 100%;
 }
 
-.form-stack input:focus,
-.form-stack select:focus,
-.form-stack textarea:focus {
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
   outline: 2px solid #93c5fd;
   outline-offset: 1px;
   border-color: #2563eb;
 }
 
-.form-stack .helptext,
-.form-stack ul {
+.form-field--invalid input,
+.form-field--invalid select,
+.form-field--invalid textarea {
+  border-color: #f87171;
+}
+
+.form-field--invalid input:focus,
+.form-field--invalid select:focus,
+.form-field--invalid textarea:focus {
+  outline-color: #fca5a5;
+  border-color: #dc2626;
+}
+
+.field-help {
   margin: 0;
-  padding: 0;
-  list-style: none;
   font-size: 0.8125rem;
   color: #64748b;
 }
 
-.form-stack .errorlist {
+.field-errors,
+.form-non-field-errors {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
   color: #b91c1c;
+}
+
+.field-errors li + li,
+.form-non-field-errors li + li {
+  margin-top: 0.2rem;
+}
+
+.form-non-field-errors {
+  padding: 0.625rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
 }
 
 .form-actions {

@@ -7,9 +7,12 @@
     <h1 class="page-title">Log in</h1>
     <p class="page-lead">Sign in to add and manage movies.</p>
 
-    <form method="post" class="form-stack">
+    <form method="post" class="form-stack" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
+        {% include "includes/form_non_field_errors.html" %}
+        {% for field in form %}
+        {% include "includes/form_field.html" with field=field %}
+        {% endfor %}
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Log in</button>
         </div>
