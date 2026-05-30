@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Movie Ratings{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'movie_list' %}">Movie Ratings</a>
+            <nav class="header-nav">
+                {% if user.is_authenticated %}
+                <span class="user-label">{{ user.get_full_name|default:user.username }}</span>
+                <form class="inline-form" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost">Log out</button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}">Log in</a>
+                <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="page">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

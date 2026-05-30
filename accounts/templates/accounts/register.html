@@ -1,18 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-</head>
-<body>
-    <h1>Register</h1>
+{% extends "base.html" %}
 
-    <form method="post">
+{% block title %}Register — Movie Ratings{% endblock %}
+
+{% block content %}
+<div class="card card-narrow">
+    <h1 class="page-title">Register</h1>
+    <p class="page-lead">Create an account to get started.</p>
+
+    <form method="post" class="form-stack">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Register</button>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create account</button>
+        </div>
     </form>
 
-    <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
-</body>
-</html>
+    <p class="form-footer">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</div>
+{% endblock %}
