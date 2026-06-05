@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
 from movies.models import Movie
@@ -11,7 +12,7 @@ class MovieTests(TestCase):
             director="Christopher Nolan",
             release_year=2010,
             genre="Sci-Fi",
-            average_rating=8.8
+            average_rating=Decimal("8.8")
         )
         self.client = Client()
 
@@ -72,4 +73,55 @@ class MovieTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The Dark Knight")
         self.assertNotContains(response, "Inception")
+
+    def test_rating_validation(self):
+        from django.core.exceptions import ValidationError
+        from movies.forms import MovieForm
+        
+        # Test valid rating
+        form = MovieForm(data={
+            'title': 'Test Movie',
+            'director': 'Test Director',
+            'release_year': 2022,
+            'genre': 'Drama',
+            'average_rating': 5.5
+        })
+        self.assertTrue(form.is_valid())
+        
+        # Test rating too high
+        form = MovieForm(data={
+            'title': 'Test Movie',
+            'director': 'Test Director',
+            'release_year': 2022,
+            'genre': 'Drama',
+            'average_rating': 11.0
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('average_rating', form.errors)
+        
+        # Test rating too low
+        form = MovieForm(data={
+            'title': 'Test Movie',
+            'director': 'Test Director',
+            'release_year': 2022,
+            'genre': 'Drama',
+            'average_rating': -1.0
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('average_rating', form.errors)
+
+    def test_service_rating_validation(self):
+        from django.core.exceptions import ValidationError
+        
+        # Test service layer enforcement
+        with self.assertRaises(ValidationError):
+            self.service.add_movie(
+                title='Test Movie',
+                director='Test Director',
+                release_year=2022,
+                genre='Drama',
+                average_rating=15.0  # Invalid
+            )
+
+
 

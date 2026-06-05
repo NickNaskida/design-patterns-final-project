@@ -40,6 +40,7 @@ class DjangoMovieRepository(MovieRepository):
             return None
 
     def save(self, movie):
+        movie.full_clean()
         movie.save()
         return movie
 
