@@ -9,7 +9,16 @@
             <h1 class="page-title">Movies</h1>
             <p class="page-lead">Browse and rate films from the catalog.</p>
         </div>
-        <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+        <div class="toolbar-actions">
+            <form method="get" action="{% url 'movie_list' %}" class="search-form">
+                <input type="text" name="q" placeholder="Search movies..." value="{{ query|default:'' }}" class="form-control">
+                <button type="submit" class="btn btn-secondary">Search</button>
+                {% if query %}
+                <a href="{% url 'movie_list' %}" class="btn-link">Clear</a>
+                {% endif %}
+            </form>
+            <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+        </div>
     </div>
 
     {% if movies %}

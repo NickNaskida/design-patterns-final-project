@@ -21,6 +21,10 @@ class MovieRepository(ABC):
         pass
 
     @abstractmethod
+    def search(self, query):
+        pass
+
+    @abstractmethod
     def count(self):
         pass
 
@@ -41,6 +45,12 @@ class DjangoMovieRepository(MovieRepository):
 
     def delete(self, movie):
         movie.delete()
+
+    def search(self, query):
+        from django.db.models import Q
+        return Movie.objects.filter(
+            Q(title__icontains=query) | Q(director__icontains=query)
+        )
 
     def count(self):
         return Movie.objects.count()

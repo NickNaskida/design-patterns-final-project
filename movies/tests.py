@@ -56,3 +56,20 @@ class MovieTests(TestCase):
         response = self.client.post(reverse('delete_movie', args=[self.movie.pk]))
         self.assertRedirects(response, reverse('movie_list'))
         self.assertFalse(Movie.objects.filter(pk=self.movie.pk).exists())
+
+    def test_search_movies_service(self):
+        self.service.add_movie(title="The Dark Knight", director="Christopher Nolan", release_year=2008, genre="Action", average_rating=9.0)
+        results = self.service.search_movies("Inception")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].title, "Inception")
+        
+        results = self.service.search_movies("Nolan")
+        self.assertEqual(len(results), 2)
+
+    def test_search_movies_view(self):
+        self.service.add_movie(title="The Dark Knight", director="Christopher Nolan", release_year=2008, genre="Action", average_rating=9.0)
+        response = self.client.get(reverse('movie_list'), {'q': 'Dark'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The Dark Knight")
+        self.assertNotContains(response, "Inception")
+

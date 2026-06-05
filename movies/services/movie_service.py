@@ -9,6 +9,11 @@ class MovieService:
     def list_movies(self):
         return self.repo.get_all()
 
+    def search_movies(self, query):
+        if not query:
+            return self.list_movies()
+        return self.repo.search(query)
+
     def get_movie(self, movie_id):
         return self.repo.get_by_id(movie_id)
 

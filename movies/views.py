@@ -4,8 +4,13 @@ from movies.services.movie_service import MovieService
 from movies.forms import MovieForm
 
 def movie_list(request):
-    movies = MovieService().list_movies()
-    return render(request, "movies/movie_list.html", {"movies": movies})
+    query = request.GET.get("q")
+    service = MovieService()
+    if query:
+        movies = service.search_movies(query)
+    else:
+        movies = service.list_movies()
+    return render(request, "movies/movie_list.html", {"movies": movies, "query": query})
 
 def add_movie(request):
     if request.method == "POST":
