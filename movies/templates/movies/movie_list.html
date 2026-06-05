@@ -21,6 +21,7 @@
                 <th>Year</th>
                 <th>Genre</th>
                 <th>Rating</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,10 @@
                 <td>{{ movie.release_year }}</td>
                 <td>{{ movie.genre }}</td>
                 <td><span class="rating-badge">{{ movie.average_rating }}</span></td>
+                <td>
+                    <a href="{% url 'edit_movie' movie.pk %}" class="btn-link">Edit</a>
+                    <a href="{% url 'delete_movie' movie.pk %}" class="btn-link btn-link-danger">Delete</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
