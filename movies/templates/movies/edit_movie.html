@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Movie — Movie Ratings{% endblock %}
+
+{% block content %}
+<div class="card card-narrow">
+    <h1 class="page-title">Edit movie</h1>
+    <p class="page-lead">Update the details for <strong>{{ movie.title }}</strong>.</p>
+
+    <form method="post" class="form-stack" novalidate>
+        {% csrf_token %}
+        {% include "includes/form_non_field_errors.html" %}
+        {% for field in form %}
+        {% include "includes/form_field.html" with field=field %}
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a class="back-link" href="{% url 'movie_list' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

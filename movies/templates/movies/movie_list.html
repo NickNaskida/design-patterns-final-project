@@ -9,7 +9,16 @@
             <h1 class="page-title">Movies</h1>
             <p class="page-lead">Browse and rate films from the catalog.</p>
         </div>
-        <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+        <div class="toolbar-actions">
+            <form method="get" action="{% url 'movie_list' %}" class="search-form">
+                <input type="text" name="q" placeholder="Search movies..." value="{{ query|default:'' }}" class="form-control">
+                <button type="submit" class="btn btn-secondary">Search</button>
+                {% if query %}
+                <a href="{% url 'movie_list' %}" class="btn-link">Clear</a>
+                {% endif %}
+            </form>
+            <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+        </div>
     </div>
 
     {% if movies %}
@@ -21,6 +30,7 @@
                 <th>Year</th>
                 <th>Genre</th>
                 <th>Rating</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +41,10 @@
                 <td>{{ movie.release_year }}</td>
                 <td>{{ movie.genre }}</td>
                 <td><span class="rating-badge">{{ movie.average_rating }}</span></td>
+                <td>
+                    <a href="{% url 'edit_movie' movie.pk %}" class="btn-link">Edit</a>
+                    <a href="{% url 'delete_movie' movie.pk %}" class="btn-link btn-link-danger">Delete</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
