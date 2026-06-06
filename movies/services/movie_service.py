@@ -6,22 +6,24 @@ class MovieService:
     def __init__(self, repo=None):
         self.repo = repo or DjangoMovieRepository()
 
-    def list_movies(self):
-        return self.repo.get_all()
+    def list_movies(self, sort=None):
+        return self.repo.get_all(sort=sort)
 
-    def search_movies(self, query):
+    def search_movies(self, query, sort=None):
         if not query:
-            return self.list_movies()
-        return self.repo.search(query)
+            return self.list_movies(sort=sort)
+        return self.repo.search(query, sort=sort)
 
     def get_movie(self, movie_id):
         return self.repo.get_by_id(movie_id)
 
     def add_movie(self, **kwargs):
+        kwargs.pop("average_rating", None)
         movie = Movie(**kwargs)
         return self.repo.save(movie)
 
     def update_movie(self, movie_id, **kwargs):
+        kwargs.pop("average_rating", None)
         movie = self.repo.get_by_id(movie_id)
         if movie:
             for key, value in kwargs.items():
