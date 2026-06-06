@@ -227,6 +227,114 @@ a:hover {
   font-size: 0.875rem;
 }
 
+.rating-badge-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.rating-badge-link:hover {
+  background: #dbeafe;
+  color: #1e40af;
+  text-decoration: none;
+}
+
+.rating-badge-lg {
+  min-width: 3rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 1.125rem;
+}
+
+.rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.rating-summary-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.rating-count {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.back-link-wrap {
+  margin: 0 0 0.75rem;
+}
+
+.form-control {
+  padding: 0.45rem 0.625rem;
+  font-size: 0.9375rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.sort-select {
+  min-width: 9rem;
+}
+
+.rate-form {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rate-input {
+  width: 4.5rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.rating-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rating-list-detail {
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rating-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.rating-user {
+  color: #475569;
+}
+
+.rating-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #1e293b;
+}
+
 .empty-state {
   margin: 0;
   padding: 2rem 1rem;
