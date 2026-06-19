@@ -1,17 +1,7 @@
-from movies.models import Movie
+from movies.patterns.adapter import JsonMovieAdapter
 
 
 class MovieDataFactory:
-    @staticmethod
-    def sample_catalog():
-        return [
-            {"title": "The Shawshank Redemption", "director": "Frank Darabont", "release_year": 1994, "genre": "Drama"},
-            {"title": "The Dark Knight", "director": "Christopher Nolan", "release_year": 2008, "genre": "Action"},
-            {"title": "Inception", "director": "Christopher Nolan", "release_year": 2010, "genre": "Sci-Fi"},
-            {"title": "Parasite", "director": "Bong Joon-ho", "release_year": 2019, "genre": "Thriller"},
-            {"title": "Spirited Away", "director": "Hayao Miyazaki", "release_year": 2001, "genre": "Animation"},
-        ]
-
     @classmethod
     def create_all_samples(cls):
-        return [Movie(**row) for row in cls.sample_catalog()]
+        return JsonMovieAdapter.load_from_file()

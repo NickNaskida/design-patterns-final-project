@@ -1,4 +1,7 @@
+from functools import wraps
+
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -6,19 +9,34 @@ from urllib.parse import urlencode
 
 from movies.forms import MovieForm, RatingForm
 from movies.patterns.repository import ALLOWED_SORT_FIELDS
+from movies.patterns.strategy import SEARCH_STRATEGIES
 from movies.services.movie_service import MovieService
 from movies.services.rating_service import RatingService
+
+
+def staff_required(view_func):
+    @login_required
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped
 
 
 def movie_list(request):
     query = request.GET.get("q")
     sort = request.GET.get("sort", "title")
+    search_strategy = request.GET.get("search_by", "combined")
     if sort not in ALLOWED_SORT_FIELDS:
         sort = "title"
+    if search_strategy not in SEARCH_STRATEGIES:
+        search_strategy = "combined"
 
     service = MovieService()
     if query:
-        movies = service.search_movies(query, sort=sort)
+        movies = service.search_movies(query, sort=sort, search_strategy=search_strategy)
     else:
         movies = service.list_movies(sort=sort)
 
@@ -32,6 +50,8 @@ def movie_list(request):
         list_params["q"] = query
     if sort != "title":
         list_params["sort"] = sort
+    if search_strategy != "combined":
+        list_params["search_by"] = search_strategy
 
     for movie in movies:
         rating = user_ratings.get(movie.pk)
@@ -48,10 +68,12 @@ def movie_list(request):
             "movies": movies,
             "query": query,
             "sort": sort,
+            "search_strategy": search_strategy,
         },
     )
 
 
+@staff_required
 def add_movie(request):
     if request.method == "POST":
         form = MovieForm(request.POST)
@@ -64,6 +86,7 @@ def add_movie(request):
     return render(request, "movies/add_movie.html", {"form": form})
 
 
+@staff_required
 def edit_movie(request, pk):
     service = MovieService()
     movie = service.get_movie(pk)
@@ -81,6 +104,7 @@ def edit_movie(request, pk):
     return render(request, "movies/edit_movie.html", {"form": form, "movie": movie})
 
 
+@staff_required
 def delete_movie(request, pk):
     service = MovieService()
     if request.method == "POST":
@@ -104,14 +128,19 @@ def movie_ratings(request, pk):
     ratings = RatingService().get_movie_ratings([pk]).get(pk, [])
     query = request.GET.get("q")
     sort = request.GET.get("sort", "title")
+    search_strategy = request.GET.get("search_by", "combined")
     if sort not in ALLOWED_SORT_FIELDS:
         sort = "title"
+    if search_strategy not in SEARCH_STRATEGIES:
+        search_strategy = "combined"
 
     list_params = {}
     if query:
         list_params["q"] = query
     if sort != "title":
         list_params["sort"] = sort
+    if search_strategy != "combined":
+        list_params["search_by"] = search_strategy
     list_url = reverse("movie_list")
     if list_params:
         list_url = f"{list_url}?{urlencode(list_params)}"
@@ -136,10 +165,13 @@ def rate_movie(request, pk):
     redirect_params = {}
     query = request.POST.get("q") or request.GET.get("q")
     sort = request.POST.get("sort") or request.GET.get("sort", "title")
+    search_strategy = request.POST.get("search_by") or request.GET.get("search_by", "combined")
     if query:
         redirect_params["q"] = query
     if sort and sort in ALLOWED_SORT_FIELDS and sort != "title":
         redirect_params["sort"] = sort
+    if search_strategy in SEARCH_STRATEGIES and search_strategy != "combined":
+        redirect_params["search_by"] = search_strategy
 
     if request.method == "POST":
         form = RatingForm(request.POST)

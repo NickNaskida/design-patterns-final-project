@@ -6,6 +6,8 @@ from django.urls import reverse
 
 from movies.forms import MovieForm, RatingForm
 from movies.models import Movie, Rating
+from movies.patterns.adapter import JsonMovieAdapter
+from movies.patterns.observer import AverageRatingObserver
 from movies.services.movie_service import MovieService
 from movies.services.rating_service import RatingService
 
@@ -41,6 +43,9 @@ class MovieTests(TestCase):
         self.assertIsNone(self.service.get_movie(self.movie.pk))
 
     def test_edit_movie_view(self):
+        admin = User.objects.create_user(username="admin", password="pass", is_staff=True)
+        self.client.login(username="admin", password="pass")
+
         response = self.client.get(reverse("edit_movie", args=[self.movie.pk]))
         self.assertEqual(response.status_code, 200)
 
@@ -57,13 +62,64 @@ class MovieTests(TestCase):
         self.movie.refresh_from_db()
         self.assertEqual(self.movie.title, "Inception Edited")
 
+    def test_edit_movie_view_requires_staff(self):
+        user = User.objects.create_user(username="regular", password="pass")
+        self.client.login(username="regular", password="pass")
+        response = self.client.get(reverse("edit_movie", args=[self.movie.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_edit_movie_view_requires_login(self):
+        response = self.client.get(reverse("edit_movie", args=[self.movie.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_add_movie_view(self):
+        admin = User.objects.create_user(username="admin", password="pass", is_staff=True)
+        self.client.login(username="admin", password="pass")
+
+        response = self.client.get(reverse("add_movie"))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(
+            reverse("add_movie"),
+            {
+                "title": "New Film",
+                "director": "New Director",
+                "release_year": 2024,
+                "genre": "Drama",
+            },
+        )
+        self.assertRedirects(response, reverse("movie_list"))
+        self.assertTrue(Movie.objects.filter(title="New Film").exists())
+
+    def test_add_movie_view_requires_staff(self):
+        user = User.objects.create_user(username="regular", password="pass")
+        self.client.login(username="regular", password="pass")
+        response = self.client.get(reverse("add_movie"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_add_movie_view_requires_login(self):
+        response = self.client.get(reverse("add_movie"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
     def test_delete_movie_view(self):
+        admin = User.objects.create_user(username="admin", password="pass", is_staff=True)
+        self.client.login(username="admin", password="pass")
+
         response = self.client.get(reverse("delete_movie", args=[self.movie.pk]))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse("delete_movie", args=[self.movie.pk]))
         self.assertRedirects(response, reverse("movie_list"))
         self.assertFalse(Movie.objects.filter(pk=self.movie.pk).exists())
+
+    def test_delete_movie_view_requires_staff(self):
+        user = User.objects.create_user(username="regular", password="pass")
+        self.client.login(username="regular", password="pass")
+        response = self.client.post(reverse("delete_movie", args=[self.movie.pk]))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Movie.objects.filter(pk=self.movie.pk).exists())
 
     def test_search_movies_service(self):
         self.service.add_movie(
@@ -239,3 +295,55 @@ class RatingTests(TestCase):
         self.assertContains(response, "6.0")
         self.assertContains(response, "7.0")
         self.assertContains(response, "2 ratings")
+
+
+class PatternTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="observer", password="pass")
+        self.movie = MovieService().add_movie(
+            title="Blade Runner",
+            director="Ridley Scott",
+            release_year=1982,
+            genre="Sci-Fi",
+        )
+
+    def test_observer_recalculates_average(self):
+        observer = AverageRatingObserver()
+        observer.on_rating_changed(self.movie)
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.average_rating, Decimal("0"))
+
+        Rating.objects.create(user=self.user, movie=self.movie, score=Decimal("8.0"))
+        observer.on_rating_changed(self.movie)
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.average_rating, Decimal("8.0"))
+
+    def test_rating_service_notifies_observer(self):
+        RatingService(observers=[AverageRatingObserver()]).rate_movie(
+            self.user, self.movie.pk, Decimal("7.5")
+        )
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.average_rating, Decimal("7.5"))
+
+    def test_genre_search_strategy(self):
+        service = MovieService()
+        service.add_movie(
+            title="Other Film",
+            director="Someone",
+            release_year=2000,
+            genre="Comedy",
+        )
+        results = service.search_movies("Sci", search_strategy="genre")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].title, "Blade Runner")
+
+    def test_json_adapter_loads_movies(self):
+        movies = JsonMovieAdapter.load_from_file()
+        self.assertEqual(len(movies), 5)
+        self.assertEqual(movies[0].title, "The Shawshank Redemption")
+
+    def test_import_from_json(self):
+        Movie.objects.all().delete()
+        added = MovieService().import_from_json()
+        self.assertEqual(added, 5)
+        self.assertEqual(Movie.objects.count(), 5)

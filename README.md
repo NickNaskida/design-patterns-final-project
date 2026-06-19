@@ -102,6 +102,10 @@ You should see a table of movies (title, director, year, genre, rating).
 
 To stop the server: press `Ctrl+C` in that terminal.
 
+### Who can do what
+
+So basically anyone can look at the movie list and rate stuff if they're logged in. But adding, editing, or deleting movies is staff-only, you won't even see those buttons unless you're a staff user. Regular people just sign up through the register page like normal. For a staff account (the one that can manage movies), run `python manage.py createsuperuser` and follow the prompts, Django marks that user as staff automatically. Log in with that account and you'll get the add/edit/delete options. Log in with a normal registered user and you won't, which is what we want.
+
 ---
 
 ## Starting over (fresh database)

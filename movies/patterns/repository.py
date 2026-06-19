@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
-from django.db.models import Avg, Q
+from django.db.models import Avg
 
 from movies.models import Movie, Rating
+from movies.patterns.strategy import DEFAULT_SEARCH_STRATEGY, SEARCH_STRATEGIES
 
 
 ALLOWED_SORT_FIELDS = {
@@ -40,7 +41,7 @@ class MovieRepository(ABC):
         pass
 
     @abstractmethod
-    def search(self, query, sort=None):
+    def search(self, query, sort=None, search_strategy=None):
         pass
 
     @abstractmethod
@@ -66,10 +67,10 @@ class DjangoMovieRepository(MovieRepository):
     def delete(self, movie):
         movie.delete()
 
-    def search(self, query, sort=None):
-        queryset = Movie.objects.filter(
-            Q(title__icontains=query) | Q(director__icontains=query)
-        )
+    def search(self, query, sort=None, search_strategy=None):
+        strategy_key = search_strategy or DEFAULT_SEARCH_STRATEGY
+        strategy = SEARCH_STRATEGIES.get(strategy_key, SEARCH_STRATEGIES[DEFAULT_SEARCH_STRATEGY])
+        queryset = Movie.objects.filter(strategy.build_filter(query))
         return _ordered(queryset, sort)
 
     def count(self):

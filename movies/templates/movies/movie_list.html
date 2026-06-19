@@ -12,6 +12,12 @@
         <div class="toolbar-actions">
             <form method="get" action="{% url 'movie_list' %}" class="search-form">
                 <input type="text" name="q" placeholder="Search movies..." value="{{ query|default:'' }}" class="form-control">
+                <select name="search_by" class="form-control sort-select" aria-label="Search field">
+                    <option value="combined" {% if search_strategy == "combined" %}selected{% endif %}>Title or director</option>
+                    <option value="title" {% if search_strategy == "title" %}selected{% endif %}>Title only</option>
+                    <option value="director" {% if search_strategy == "director" %}selected{% endif %}>Director only</option>
+                    <option value="genre" {% if search_strategy == "genre" %}selected{% endif %}>Genre only</option>
+                </select>
                 <select name="sort" class="form-control sort-select" aria-label="Sort movies">
                     <option value="title" {% if sort == "title" %}selected{% endif %}>Title (A–Z)</option>
                     <option value="-title" {% if sort == "-title" %}selected{% endif %}>Title (Z–A)</option>
@@ -26,7 +32,9 @@
                 <a href="{% url 'movie_list' %}?sort={{ sort }}" class="btn-link">Clear</a>
                 {% endif %}
             </form>
+            {% if user.is_staff %}
             <a class="btn btn-primary" href="{% url 'add_movie' %}">+ Add movie</a>
+            {% endif %}
         </div>
     </div>
 
@@ -65,6 +73,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="q" value="{{ query|default:'' }}">
                         <input type="hidden" name="sort" value="{{ sort }}">
+                        <input type="hidden" name="search_by" value="{{ search_strategy }}">
                         <input
                             type="number"
                             name="score"
@@ -84,8 +93,12 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if user.is_staff %}
                     <a href="{% url 'edit_movie' movie.pk %}" class="btn-link">Edit</a>
                     <a href="{% url 'delete_movie' movie.pk %}" class="btn-link btn-link-danger">Delete</a>
+                    {% else %}
+                    —
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
